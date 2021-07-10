@@ -1,3 +1,4 @@
-export * from "./hooks/useAudioPlayer"
-export * from "./hooks/useOnClickOutside"
-export * from "./hooks/useSingleAndDoubleClick"
+import useAudioPlayer from "./hooks/useAudioPlayer"
+import useOnClickOutside from "./hooks/useOnClickOutside"
+import useSingleAndDoubleClick from "./hooks/useSingleAndDoubleClick"
+export {useAudioPlayer,useOnClickOutside,useSingleAndDoubleClick}

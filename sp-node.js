@@ -8,9 +8,14 @@
  */
 const fs = require('fs')
 
-const getExport = (filePath) => `export * from "${filePath}"\n`
+const getImport = (filePath, importName) =>
+  `import ${importName} from "${filePath}"\n`
+
+const getExport = () => `export {${newExportsArr.join(',')}}`
 
 let newIndex = ''
+
+let newExportsArr = []
 
 /**
  * Get all components
@@ -23,25 +28,34 @@ fs.readdir(srcDir, (err, files) => {
   }
   // filter out all dirs
   files = files.filter((fileName) => /^.*\.[^\\]+$/.test(fileName))
-  // get all files from src/hooks
-  // "import * from './src/hooks/${}';"
 
   console.log('\x1b[4m', '     generating exports     ', '\x1b[0m')
-  const exports = files.map((file) => {
-    // get the file name
+
+  // get all files from src/hooks
+  files.forEach((file) => {
+    /**
+     * get all the base data for importing and exporting files in index.ts
+     */
+    // get the file name / exported function name
     const fileName = file.split('.')[0]
     // get the file path
     const filePath = `./hooks/${fileName}`
     // get file export string
-    const exportString = getExport(filePath)
-    // show the file name in console
-    console.log('\x1b[34m', file, '\x1b[0m')
-    // return export string
-    return exportString
+    const importString = getImport(filePath, fileName)
+
+    // add importString to newIndex
+    newIndex += importString
+    // add fileName to newExportsArr
+    newExportsArr.push(fileName)
+
+    console.log('\x1b[34m', file, '\x1b[0m') // show the file name in console
   })
+  // get export and add to newIndex
+  const exportString = getExport()
+  newIndex += exportString
+
   console.log('\n')
-  // concat all exports
-  newIndex += exports.join('')
+
   // write to index.ts
   fs.writeFile('./src/index.ts', newIndex, (err) => {
     if (err) {

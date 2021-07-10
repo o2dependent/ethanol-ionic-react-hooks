@@ -6,10 +6,10 @@ export interface SingleAndDoubleClickParams {
   delay?: number
 }
 
-export function useSingleAndDoubleClick({
+export default function useSingleAndDoubleClick({
   actionSimpleClick,
   actionDoubleClick,
-  delay = 250,
+  delay = 250
 }: SingleAndDoubleClickParams) {
   const [click, setClick] = useState(0)
 
