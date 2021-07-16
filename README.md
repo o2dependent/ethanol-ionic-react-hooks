@@ -12,16 +12,55 @@ npm install --save @ethanol/ionic-react-hooks
 
 ## Usage
 
+#### useAudioPlayer
+
 ```tsx
-import React, { Component } from 'react'
+import React from 'react'
 
-import MyComponent from '@ethanol/ionic-react-hooks'
-import '@ethanol/ionic-react-hooks/dist/index.css'
+import { useAudioPlayer } from '@ethanol/ionic-react-hooks'
 
-class Example extends Component {
-  render() {
-    return <MyComponent />
-  }
+interface Props {
+  audioUrl: string
+}
+
+export const AudioComponent = ({ audioUrl }: Props) => {
+  // ---- hooks ----
+  // > refs
+  const progressRef = useRef<HTMLInputElement>(null!)
+
+  // > player
+  const {
+    curTime,
+    duration,
+    isLoading,
+    isPaused,
+    seekTo,
+    skip,
+    togglePlayPause
+  } = useAudioPlayer({
+    audioUrl: audioUrl,
+    progressRef: progressRef
+  })
+
+  return (
+    <div>
+      {/* Display current time and duration */}
+      <p>
+        {curTime}/{duration}
+      </p>
+      {/* Progress slider */}
+      <input
+        type='range'
+        ref={progressRef}
+        onChange={(e) => seekTo(parseInt(e?.target?.value ?? curTime))}
+      />
+      {/* Play pause */}
+      <button onClick={togglePlayPause}>{isPaused ? 'Play' : 'Pause'}</button>
+      {/* Skip 15 seconds forward and backwards */}
+      <button onClick={() => skip(15)}>Skip +15</button>
+      <button onClick={() => skip(-15)}>Skip -15</button>
+    </div>
+  )
 }
 ```
 
