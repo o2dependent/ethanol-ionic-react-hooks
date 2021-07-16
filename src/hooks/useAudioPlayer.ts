@@ -83,6 +83,15 @@ const useHTMLAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
     setCurTime(audio.currentTime)
     animationRef.current = requestAnimationFrame(whilePlaying)
   }
+  /**
+   * Get audio percentage
+   * @returns {number}
+   */
+  const getPercent = () => {
+    return progressRef?.current?.value && progressRef?.current?.max
+      ? parseInt(progressRef.current.value) / parseInt(progressRef.current.max)
+      : 0
+  }
 
   return {
     /**
@@ -103,7 +112,8 @@ const useHTMLAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
     isLoading,
     seekTo,
     togglePlayPause,
-    skip
+    skip,
+    getPercent
   }
 }
 
@@ -184,6 +194,15 @@ const usePlatformAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
     setCurTime(curPos)
     animationRef.current = requestAnimationFrame(whilePlaying)
   }
+  /**
+   * Get audio percentage
+   * @returns {number}
+   */
+  const getPercent = () => {
+    return progressRef?.current?.value && progressRef?.current?.max
+      ? parseInt(progressRef.current.value) / parseInt(progressRef.current.max)
+      : 0
+  }
 
   return {
     /**
@@ -204,6 +223,7 @@ const usePlatformAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
     isLoading,
     seekTo,
     togglePlayPause,
-    skip
+    skip,
+    getPercent
   }
 }
