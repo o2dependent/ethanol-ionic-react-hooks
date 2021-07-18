@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 interface UseAudioPlayerProps {
   audioUrl: string
   progressRef: React.MutableRefObject<HTMLInputElement>
+  autoPlay?: boolean
 }
 
 const useAudioPlayer = (props: UseAudioPlayerProps) => {
@@ -14,7 +15,11 @@ const useAudioPlayer = (props: UseAudioPlayerProps) => {
 
 export default useAudioPlayer
 
-const useHTMLAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
+const useHTMLAudio = ({
+  audioUrl,
+  progressRef,
+  autoPlay = false
+}: UseAudioPlayerProps) => {
   // --- hooks ---
   // > state
   const [audio, setAudio] = useState<HTMLAudioElement>(null!) // current audio
@@ -26,30 +31,49 @@ const useHTMLAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
   const animationRef = useRef<number>(null!) // request animation ref
   // > component did mount
   useEffect(() => {
-    // create new audio
-    const newAudio = new Audio(audioUrl)
-    setAudio(newAudio)
-    // get media duration
-    const newDuration = newAudio.duration
-    setDuration(newDuration)
-    // set up audio state when audio is loaded
-    newAudio.onloadedmetadata = (e) => {
-      console.log(e)
-      const seconds = Math.floor(newAudio.duration)
-      progressRef.current.max = `${seconds}`
-      setDuration(seconds)
-      setIsLoading(false)
+    if (audioUrl) {
+      setIsLoading(true)
+      if (audio) {
+        // delete audio if it already exists
+        setIsPaused(true)
+        audio.remove()
+      }
+      // create new audio html element
+      const newAudio = document.createElement('audio')
+      newAudio.setAttribute('src', audioUrl)
+      setAudio(newAudio)
+      // get media duration
+      const newDuration = newAudio.duration
+      setDuration(newDuration)
     }
     // > on unmount
     return () => {
       // cancel animation loop
       cancelAnimationFrame(animationRef.current)
     }
-  }, [])
+  }, [audioUrl])
+
+  // > component should update on audio change
+  useEffect(() => {
+    document.body.append(audio)
+    if (audio) {
+      // set up audio state when audio is loaded
+      const seconds = Math.floor(audio.duration)
+      progressRef.current.max = `${seconds}`
+      setDuration(seconds)
+      if (autoPlay) {
+        console.log(audio)
+        togglePlayPause()
+      }
+      audio.onloadedmetadata = () => setIsLoading(false)
+    }
+  }, [audio])
+
   // > component should update on paused change
   useEffect(() => {
     setCurTime(audio?.currentTime)
   }, [isPaused])
+
   // > audio functions
   /**
    * Toggle audio pause and play state
@@ -126,7 +150,11 @@ const useHTMLAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
   }
 }
 
-const usePlatformAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
+const usePlatformAudio = ({
+  audioUrl,
+  progressRef,
+  autoPlay = false
+}: UseAudioPlayerProps) => {
   // --- hooks ---
   // > state
   const [audio, setAudio] = useState<MediaObject>(Media.create(audioUrl)) // current audio
@@ -138,6 +166,12 @@ const usePlatformAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
   const animationRef = useRef<number>(null!) // request animation ref
   // > component did mount
   useEffect(() => {
+    setIsLoading(true)
+    if (audio) {
+      // delete audio if it already exists
+      audio.pause()
+      audio.release()
+    }
     // create new audio
     const newAudio = Media.create(audioUrl)
     setAudio(newAudio)
@@ -149,6 +183,9 @@ const usePlatformAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
     progressRef.current.max = `${seconds}`
     setDuration(seconds)
     setIsLoading(false)
+    if (autoPlay) {
+      togglePlayPause()
+    }
     // > on unmount
     return () => {
       // cancel animation loop
@@ -156,7 +193,7 @@ const usePlatformAudio = ({ audioUrl, progressRef }: UseAudioPlayerProps) => {
       // release audio
       audio.release()
     }
-  }, [])
+  }, [audioUrl])
   // > component should update on paused change
   useEffect(() => {
     const curTimeHandler = async () => {
