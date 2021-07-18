@@ -2,6 +2,8 @@
 
 > Ionic react hooks by Ethan Olsen
 
+**_This library is not still being developed and is not to be used in applications till done._**
+
 [![NPM](https://img.shields.io/npm/v/@ethanol/ionic-react-hooks.svg)](https://www.npmjs.com/package/@ethanol/ionic-react-hooks) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## Install
